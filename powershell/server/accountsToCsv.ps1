@@ -1,13 +1,14 @@
-$dataJsonObjecy = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
+$dataJsonObject = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
 
-$ipList = $dataJsonObjecy.ipList
-$User = $dataJsonObjecy.credential.account
-$Password = ConvertTo-SecureString -String $dataJsonObjecy.credential.password -AsPlainText -Force
+$ipList = $dataJsonObject.ipList
+$User = $dataJsonObject.credential.account
+$Password = ConvertTo-SecureString -String $dataJsonObject.credential.password -AsPlainText -Force
 $Credential = [pscredential]::new($User,$Password)
 
 $netAccountsOutputJsonArray = "[]"| ConvertFrom-Json
 foreach ($ip in $ipList){
-    $invokeCommandJsonObject = Invoke-Command -ComputerName $ip -ScriptBlock {
+    $invokeCommandJsonObject = Invoke-Command -ComputerName $ip -credential $Credential -ScriptBlock {
+        param($ip)
         cmd /c "secedit /export /cfg C:\security.cfg" | Out-Null
         $PasswordComplexity = (Get-Content C:\security.cfg | Select-String "PasswordComplexity").ToString().replace(' ','').Split("=")[1]
         Remove-Item -Path C:\security.cfg | Out-Null
@@ -26,11 +27,11 @@ foreach ($ip in $ipList){
             '電腦角色': '$(($netAccounts | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
             '啟用密碼複雜度': '$($PasswordComplexity)'
         }"
-    } -credential $Credential | ConvertFrom-Json
-
+    } -ArgumentList $ip| ConvertFrom-Json
     
     $netAccountsOutputJsonArray += $invokeCommandJsonObject
     Write-Host "catching data from [$($ip)]"
+    Write-Host $invokeCommandJsonObject
 }
 
 # Write-Host ($netAccountsOutputJsonArray | ConvertTo-Json)
