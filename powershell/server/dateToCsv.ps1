@@ -1,8 +1,8 @@
-$dataJsonObjecy = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
+$dataJsonObject = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
 
-$ipList = $dataJsonObjecy.ipList
-$User = $dataJsonObjecy.credential.account
-$Password = ConvertTo-SecureString -String $dataJsonObjecy.credential.password -AsPlainText -Force
+$ipList = $dataJsonObject.ipList
+$User = $dataJsonObject.credential.account
+$Password = ConvertTo-SecureString -String $dataJsonObject.credential.password -AsPlainText -Force
 $Credential = [pscredential]::new($User,$Password)
 
 $getDateOutputJsonArray = "[]"| ConvertFrom-Json
