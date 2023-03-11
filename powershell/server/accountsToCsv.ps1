@@ -7,27 +7,29 @@ $Credential = [pscredential]::new($User,$Password)
 
 $netAccountsOutputJsonArray = "[]"| ConvertFrom-Json
 foreach ($ip in $ipList){
-    $netAccountsOutput = Invoke-Command -ComputerName $ip -ScriptBlock {
+    $invokeCommandJsonObject = Invoke-Command -ComputerName $ip -ScriptBlock {
         cmd /c "secedit /export /cfg C:\security.cfg" | Out-Null
-        cmd /c "chcp 437 > nul & net accounts"
-        (Get-Content C:\security.cfg | Select-String "PasswordComplexity").ToString()
-        Remove-Item -Path C:\security.cfg
-    } -credential $Credential
+        $PasswordComplexity = (Get-Content C:\security.cfg | Select-String "PasswordComplexity").ToString().replace(' ','').Split("=")[1]
+        Remove-Item -Path C:\security.cfg | Out-Null
+        
+        $netAccounts = cmd /c "chcp 437 > nul & net accounts"
 
-    $netAccountsOutputJsonObject = "{
-        'ip':'$($ip)',
-        'Force user logoff how long after time expires?': '$(($netAccountsOutput | Select-String "Force user logoff how long after time expires?").ToString().replace(' ','').Split(":")[1])',
-        'Minimum password age (days)': '$(($netAccountsOutput | Select-String "Minimum password age").ToString().replace(' ','').Split(":")[1])',
-        'Maximum password age (days)': '$(($netAccountsOutput | Select-String "Maximum password age").ToString().replace(' ','').Split(":")[1])',
-        'Length of password history maintained': '$(($netAccountsOutput | Select-String "Length of password history maintained").ToString().replace(' ','').Split(":")[1])',
-        'Lockout threshold': '$(($netAccountsOutput | Select-String "Lockout threshold").ToString().replace(' ','').Split(":")[1])',
-        'Lockout duration (minutes)': '$(($netAccountsOutput | Select-String "Lockout duration").ToString().replace(' ','').Split(":")[1])',
-        'Lockout observation window (minutes)': '$(($netAccountsOutput | Select-String "Lockout observation window").ToString().replace(' ','').Split(":")[1])',
-        'Computer role': '$(($netAccountsOutput | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
-        'PasswordComplexity': '$(($netAccountsOutput | Select-String "PasswordComplexity").ToString().replace(' ','').Split("=")[1])'
-    }" | ConvertFrom-Json
+        return "{
+            'ip':'$($ip)',
+            '強制使用者登出網路時間': '$(($netAccounts | Select-String "Force user logoff how long after time expires?").ToString().replace(' ','').Split(":")[1])',
+            '密碼最短使用期': '$(($netAccounts | Select-String "Minimum password age").ToString().replace(' ','').Split(":")[1])',
+            '密碼最長使用期限': '$(($netAccounts | Select-String "Maximum password age").ToString().replace(' ','').Split(":")[1])',
+            '密碼N代不重複': '$(($netAccounts | Select-String "Length of password history maintained").ToString().replace(' ','').Split(":")[1])',
+            '失敗登入嘗試次數': '$(($netAccounts | Select-String "Lockout threshold").ToString().replace(' ','').Split(":")[1])',
+            '鎖定持續期間': '$(($netAccounts | Select-String "Lockout duration").ToString().replace(' ','').Split(":")[1])',
+            '鎖定觀測視窗': '$(($netAccounts | Select-String "Lockout observation window").ToString().replace(' ','').Split(":")[1])',
+            '電腦角色': '$(($netAccounts | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
+            '啟用密碼複雜度': '$($PasswordComplexity)'
+        }"
+    } -credential $Credential | ConvertFrom-Json
+
     
-    $netAccountsOutputJsonArray += $netAccountsOutputJsonObject
+    $netAccountsOutputJsonArray += $invokeCommandJsonObject
     Write-Host "catching data from [$($ip)]"
 }
 
