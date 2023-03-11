@@ -25,13 +25,17 @@ foreach ($ip in $ipList){
             '鎖定持續期間': '$(($netAccounts | Select-String "Lockout duration").ToString().replace(' ','').Split(":")[1])',
             '鎖定觀測視窗': '$(($netAccounts | Select-String "Lockout observation window").ToString().replace(' ','').Split(":")[1])',
             '電腦角色': '$(($netAccounts | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
-            '啟用密碼複雜度': '$($PasswordComplexity)'
+            '啟用密碼複雜度': '$($PasswordComplexity)',
+            '伺服器時間': '$(Get-Date -Format "yyyy/MM/dd HH:mm:ss")'
         }"
-    } -ArgumentList $ip| ConvertFrom-Json
+    } -ArgumentList $ip | ConvertFrom-Json
     
+    # 加入參數 控制電腦時間
+    Add-Member -InputObject $invokeCommandJsonObject -MemberType NoteProperty -Name "控制電腦時間" -Value $(Get-Date -Format "yyyy/MM/dd HH:mm:ss")
+
     $netAccountsOutputJsonArray += $invokeCommandJsonObject
     Write-Host "catching data from [$($ip)]"
-    Write-Host $invokeCommandJsonObject
+    Write-Host ($invokeCommandJsonObject | ConvertTo-Json)
 }
 
 # Write-Host ($netAccountsOutputJsonArray | ConvertTo-Json)
