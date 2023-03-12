@@ -42,4 +42,4 @@ foreach ($ip in $ipList){
 
 $netAccountsOutputJsonArray |
     ConvertTo-Csv -NoTypeInformation |
-    Set-Content "~\Desktop\accountsToCsvOutput_$((Get-Date -Format "yyyy-MM-dd_HHmmss")).csv"
+    Set-Content "~\Desktop\accountsToCsvOutput_$(Get-Date -Format "yyyy-MM-dd_HHmmss").csv"
