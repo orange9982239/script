@@ -1,4 +1,4 @@
-$objectList = @"
+﻿$objectList = @"
 [
     {
         "Name": "Darts",

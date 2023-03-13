@@ -1,4 +1,4 @@
-# 讀取JSON設定檔案，用於遠端登入收集資料
+﻿# 讀取JSON設定檔案，用於遠端登入收集資料
 $dataJsonObject = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
 
 $ipList = $dataJsonObject.ipList

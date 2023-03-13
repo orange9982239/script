@@ -1,4 +1,4 @@
-# 建立JSON Array
+﻿# 建立JSON Array
 $jsonArray = @"
 [
     {
