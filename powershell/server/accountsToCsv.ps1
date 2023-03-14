@@ -1,5 +1,5 @@
-﻿# 讀取JSON設定檔案，用於遠端登入收集資料
-$dataJsonObject = (Get-Content "0.data.json" -Raw) | ConvertFrom-Json
+﻿# 讀取JSON設定檔案，用於遠端登入收集資料，自行複製\data\templet.json改成\data\secret.json
+$dataJsonObject = Get-Content (Convert-Path "$($PSScriptRoot)\..\data\secret.json") -Raw | ConvertFrom-Json
 
 $ipList = $dataJsonObject.ipList
 $User = $dataJsonObject.credential.account
@@ -23,21 +23,21 @@ foreach ($ip in $ipList){
 
         return "{
             'ip':'$($ip)',
-            '強制使用者登出網路時間': '$(($netAccounts | Select-String "Force user logoff how long after time expires?").ToString().replace(' ','').Split(":")[1])',
-            '密碼最短使用期': '$(($netAccounts | Select-String "Minimum password age").ToString().replace(' ','').Split(":")[1])',
-            '密碼最長使用期限': '$(($netAccounts | Select-String "Maximum password age").ToString().replace(' ','').Split(":")[1])',
-            '密碼N代不重複': '$(($netAccounts | Select-String "Length of password history maintained").ToString().replace(' ','').Split(":")[1])',
-            '失敗登入嘗試次數': '$(($netAccounts | Select-String "Lockout threshold").ToString().replace(' ','').Split(":")[1])',
-            '鎖定持續期間': '$(($netAccounts | Select-String "Lockout duration").ToString().replace(' ','').Split(":")[1])',
-            '鎖定觀測視窗': '$(($netAccounts | Select-String "Lockout observation window").ToString().replace(' ','').Split(":")[1])',
-            '電腦角色': '$(($netAccounts | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
-            '啟用密碼複雜度': '$($PasswordComplexity)',
-            '伺服器時間': '$(Get-Date -Format "yyyy/MM/dd HH:mm:ss")'
+            'Force user logoff how long after time expires?': '$(($netAccounts | Select-String "Force user logoff how long after time expires?").ToString().replace(' ','').Split(":")[1])',
+            'Minimum password age': '$(($netAccounts | Select-String "Minimum password age").ToString().replace(' ','').Split(":")[1])',
+            'Maximum password age': '$(($netAccounts | Select-String "Maximum password age").ToString().replace(' ','').Split(":")[1])',
+            'Length of password history maintained': '$(($netAccounts | Select-String "Length of password history maintained").ToString().replace(' ','').Split(":")[1])',
+            'Lockout threshold': '$(($netAccounts | Select-String "Lockout threshold").ToString().replace(' ','').Split(":")[1])',
+            'Lockout duration': '$(($netAccounts | Select-String "Lockout duration").ToString().replace(' ','').Split(":")[1])',
+            'Lockout observation window': '$(($netAccounts | Select-String "Lockout observation window").ToString().replace(' ','').Split(":")[1])',
+            'Computer role': '$(($netAccounts | Select-String "Computer role").ToString().replace(' ','').Split(":")[1])',
+            'PasswordComplexity': '$($PasswordComplexity)',
+            'RemoteTime': '$(Get-Date -Format "yyyy/MM/dd HH:mm:ss")'
         }"
     } -ArgumentList $ip | ConvertFrom-Json
     
     # JSON OBJECT加入參數 控制電腦時間
-    Add-Member -InputObject $invokeCommandJsonObject -MemberType NoteProperty -Name "控制電腦時間" -Value $(Get-Date -Format "yyyy/MM/dd HH:mm:ss")
+    Add-Member -InputObject $invokeCommandJsonObject -MemberType NoteProperty -Name "LocalTime" -Value $(Get-Date -Format "yyyy/MM/dd HH:mm:ss")
 
     # 收集到的JSON OBJECT加入JSON ARRAY中
     $netAccountsOutputJsonArray += $invokeCommandJsonObject

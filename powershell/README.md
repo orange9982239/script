@@ -1,6 +1,10 @@
 # Powershell
 > 由於每次都在各種編碼轉換遇到狀況，統一改用UTF-8 with BOM撰寫、儲存。
 
+## 設定檔案secret.json
+> 複製powershell\data\templet.json
+> 改名secret.json並更改內容
+
 ## 控制端(GATE)設定
 1. 信任任何Host
     > 因為登入過程會傳送credential，因此有此保護，但通常在內網中操作
