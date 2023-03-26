@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SOURCE="/homes/cylee/NTTUDB/NTTU_TEST"      # 來源
-TARGET="/rsyncfolder"                       # 儲存目標
-SSHSERVER="sysdev@10.1.111.40"              # 遠端SERVER
+SOURCE="/homes/path/to/folder"              # 來源
+TARGET="/targetFolder"                      # 儲存目標
+SSHSERVER="user@ip"                         # 遠端SERVER
 SSHPORT="22"                                # 遠端SERVER PORT
 SYNCDAYS="5"                                # 同步天數
 
