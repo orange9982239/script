@@ -1,5 +1,12 @@
 ﻿$dataJsonObject = Get-Content (Convert-Path "$($PSScriptRoot)\..\..\data\secret.json") -Raw | ConvertFrom-Json
 $lanTimeServer = "192.168.1.1"
+$jobName = "timeSync"
+$scriptText = "net time \\$($lanTimeServer) /set /y"
+
+# 建立script
+$scriptFileaPath = "C:\job\$($jobName).bat" 
+New-Item $($scriptFileaPath) -Force
+Set-Content $($scriptFileaPath) $($scriptText)
 
 # 執行頻率
 $trigger = New-ScheduledTaskTrigger `
@@ -11,12 +18,12 @@ $supportTrigger = New-ScheduledTaskTrigger `
 $trigger.Repetition = $supportTrigger.Repetition
 
 # 執行指令
-$action = New-ScheduledTaskAction -Execute "net time \\$($lanTimeServer) /set /y"
+$action = New-ScheduledTaskAction -Execute $($scriptFileaPath)
 
 Register-ScheduledTask `
-    -Action $action `
-    -Trigger $trigger `
-    -TaskName "TimeSync" `
+    -Action $($action) `
+    -Trigger $($trigger) `
+    -TaskName $($jobName) `
     -RunLevel Highest `
     -User $($dataJsonObject.credential.account) `
     -Password $($dataJsonObject.credential.password)
